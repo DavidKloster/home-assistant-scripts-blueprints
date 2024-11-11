@@ -1,0 +1,49 @@
+blueprint:
+  name: Toggle RGB Colors for Selected Lamps
+  description: A script to toggle RGB colors for selected lamps on each activation.
+  domain: script
+  input:
+    lamp_entities:
+      name: Lamp Entities
+      description: Select the lamps to toggle colors
+      selector:
+        target:
+          entity:
+            domain: light
+            multiple: true
+    colors:
+      name: RGB Colors
+      description: Colors to toggle through (select multiple colors)
+      selector:
+        color_rgb:
+          multiple: true
+
+variables:
+  color_list: !input colors
+
+sequence:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ state_attr(target, 'rgb_color') == color_list[-1] }}
+        sequence:
+          - service: light.turn_on
+            target: !input lamp_entities
+            data:
+              rgb_color: "{{ color_list[0] }}"
+              brightness: 200
+      - conditions:
+          - condition: template
+            value_template: >
+              {% for color in color_list[:-1] %}
+                {% if state_attr(target, 'rgb_color') == color %}
+                  {{ color_list[color_list.index(color) + 1] }}
+                {% endif %}
+              {% endfor %}
+        sequence:
+          - service: light.turn_on
+            target: !input lamp_entities
+            data_template:
+              rgb_color: "{{ color }}"
+              brightness: 200
