@@ -10,13 +10,22 @@ blueprint:
         target:
           entity:
             domain: light
-            multiple: true
     colors:
       name: RGB Colors
-      description: Colors to toggle through (select multiple colors)
+      description: Add RGB colors to toggle through
+      default:
+        - [255, 0, 0]  # Red
+        - [0, 255, 0]  # Green
+        - [0, 0, 255]  # Blue
       selector:
-        color_rgb:
-          multiple: true
+        object:
+          type: array
+          item:
+            type: array
+            items:
+              - type: integer
+              - type: integer
+              - type: integer
 
 variables:
   color_list: !input colors
